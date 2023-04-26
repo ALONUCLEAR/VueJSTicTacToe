@@ -1,7 +1,7 @@
 <template> <div>
 <label>{{ text }}</label>
   <label class="switch">
-    <input type="checkbox" @click="$emit('swap')" />
+    <input type="checkbox" :checked="checked" @click="$emit('swap')" />
     <span class="slider round" />
   </label> </div>
 </template>
@@ -13,6 +13,10 @@ export default {
         text: {
             type: String,
             default: "",
+        },
+        checked: {
+          type: Boolean,
+          default: false,
         }
     }
 };
