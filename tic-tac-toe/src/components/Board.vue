@@ -1,6 +1,9 @@
 <template>
   <div class="board container">
-    <div class="pb-3"> <button class="btn btn-primary" @click="initiateBoard">RESET</button> </div>
+    <div class="pb-3 row justify-content-center"> 
+      <button class="btn btn-primary" @click="initiateBoard">RESET</button> 
+      <button class="btn btn-secondary" @click="swapAI"> {{toggleText}} </button>
+    </div>
     <div v-for="(row, index) in cells" :key="index" class="row justify-content-center">
       <i v-for="(cell, colIndex) in row" :key="colIndex" class="square" :class="cell" @click="clickCell(index, colIndex)" />
     </div>    
@@ -9,6 +12,7 @@
 
 <script>
 import swal from 'sweetalert2';
+const copyBoard = board => [...board.map(row => [...row])];
 
 export default {
   name: 'GameBoard',
@@ -28,12 +32,20 @@ export default {
       circle: "fa-regular fa-circle",
       x: "fa-solid fa-x",
       isXTurn: true,
+      isAI: false,
     }
   },
   created() {
     this.initiateBoard();
   },
   methods: {
+    swapAI() {
+      this.isAI = !this.isAI;
+
+      if(this.isAI && !this.isXTurn) {
+        this.aiPlay();
+      }
+    },
     initiateBoard() {
       this.cells = Array.from({length: this.rows}).map(() => Array.from({length: this.columns}, () => '')); 
       this.isXTurn = true;
@@ -58,6 +70,10 @@ export default {
         this.isXTurn = !this.isXTurn;
         this.$forceUpdate();
         this.announceEnd();
+
+        if(!this.didGameEnd() && this.isAI && !this.isXTurn) {
+          this.aiPlay();
+        }
       }
     },
     announceEnd() {
@@ -69,18 +85,24 @@ export default {
         this.draw();
       }
     },
-    isDraw() {
-      return this.cells.every(row => row.every(cell => cell !== ''));
+    isBoardAtDraw(board) {
+      return board.every(row => row.every(cell => cell !== ''));
     },
-    didShapeWin(shape) {
-      const board = this.cells.map(row => row.map(cell => {
-        if(cell === this.x) {
-          return 'x'
-        }
-
-        return cell === this.circle ? 'o' : '';
-      }));
-
+    isDraw() {
+      return this.isBoardAtDraw(this.cells);
+    },
+    aiPlay() {
+      const options = this.possibleActions(this.cells, 'o')
+      .map(action => ({row: action.row, col: action.col, value: this.minimax(this.result(this.cells, action), true)}));
+      
+      if(options.length > 0) {
+        const {row, col} = options.find(option => option.value === Math.min(...options.map(({value}) => value)));
+        this.clickCell(row, col);
+      }
+    },
+    didShapeBeatBoard(symbol, board) {
+      const shape = symbol === 'x' ? this.x : this.circle;
+      
       for (let rowIndex = 0; rowIndex < this.rows; rowIndex++) {
         let count = 0;
         for (let columnIndex = 0; columnIndex < this.columns; columnIndex++) {
@@ -107,7 +129,7 @@ export default {
 
       let count = 0;
       for (let rowIndex = 0; rowIndex < this.rows; rowIndex++) {
-        if (board[rowIndex][rowIndex] === shape) {
+        if (board[rowIndex][rowIndex] === shape) {  
           count++;
         }
       }
@@ -127,10 +149,53 @@ export default {
 
       return false;
     },
+    didShapeWin(shape) {
+      return this.didShapeBeatBoard(shape, this.cells);
+    },
     didGameEnd() {
       return this.didShapeWin('x') || this.didShapeWin('o') || this.isDraw();
     },
+    isTerminal(state) {
+      return this.didShapeBeatBoard('x', state) || this.didShapeBeatBoard('o', state) || this.isBoardAtDraw(state); 
+    },
+    valueTerminalState(state) {
+      if(this.didShapeBeatBoard('x', state)) {
+        return 1;
+      } else if(this.didShapeBeatBoard('o', state)) {
+        return -1;
+      } else if(this.isBoardAtDraw(state)) {
+        return 0;
+      }
+
+      this.error("Tried to evaluate a non-terminal state");
+    },
+    result(state, action) { //action is of form {row, col, value}
+      const res = copyBoard(state);
+      res[action.row][action.col] = action.value === 'x' ? this.x : this.circle;
+
+      return res;
+    },
+    possibleActions(board, shape) {
+      return board.flatMap((row, rowIndex) => row.map((_, colIndex) => 
+                  ({row: rowIndex, col: colIndex, value: shape})).filter(({col}) => !row[col]));
+    },
+    minimax(board, isXTurn) {
+      if(this.isTerminal(board)) {
+        return this.valueTerminalState(board);
+      }
+
+      if(isXTurn) {
+        return Math.max(...this.possibleActions(board, 'x').map(action => this.minimax(this.result(board, action), false)));
+      }
+      
+      return Math.min(...this.possibleActions(board, 'o').map(action => this.minimax(this.result(board, action), true)));
+    }
   },
+  computed: {
+    toggleText() {
+      return this.isAI ? "deactivate AI" : "activate AI mode";
+    }
+  }
 }
 </script>
 
