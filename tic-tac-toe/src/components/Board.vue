@@ -1,6 +1,6 @@
 <template>
-  <div class="board">
-    <div v-for="(row, index) in cells" :key="index">
+  <div class="board container">
+    <div v-for="(row, index) in cells" :key="index" class="row justify-content-center">
       <i v-for="(cell, colIndex) in row" :key="colIndex" class="fa-solid square">
         {{cell}}
       </i>
@@ -35,7 +35,12 @@ export default {
 
 <style scoped>
 .square {
-  border: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid black;
+  width: 100px;
+  height: 100px;
   outline-color: black;
   outline-width: thick;
 }
