@@ -21,6 +21,7 @@ export default {
 <style scoped>
 label {
     display: block;
+    font-family: monospace;
 }
 .switch {
   position: relative;
