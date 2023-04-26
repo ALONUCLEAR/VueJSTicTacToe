@@ -92,14 +92,17 @@ export default {
       return this.isBoardAtDraw(this.cells);
     },
     aiPlay() {
-      const options = this.possibleActions(this.cells, 'o').map(({row, col}) => ({row, col, value: this.minimax(this.cells, false)}));
-
+      const options = this.possibleActions(this.cells, 'o')
+      .map(action => ({row: action.row, col: action.col, value: this.minimax(this.result(this.cells, action), true)}));
+      
       if(options.length > 0) {
-        const {row, col} = options.find(option => option.value === Math.max(...options.map(({value}) => value)));
+        const {row, col} = options.find(option => option.value === Math.min(...options.map(({value}) => value)));
         this.clickCell(row, col);
       }
     },
-    didShapeBeatBoard(shape, board) {
+    didShapeBeatBoard(symbol, board) {
+      const shape = symbol === 'x' ? this.x : this.circle;
+      
       for (let rowIndex = 0; rowIndex < this.rows; rowIndex++) {
         let count = 0;
         for (let columnIndex = 0; columnIndex < this.columns; columnIndex++) {
@@ -147,15 +150,7 @@ export default {
       return false;
     },
     didShapeWin(shape) {
-      const board = this.cells.map(row => row.map(cell => {
-        if(cell === this.x) {
-          return 'x'
-        }
-
-        return cell === this.circle ? 'o' : '';
-      }));
-
-      return this.didShapeBeatBoard(shape, board);
+      return this.didShapeBeatBoard(shape, this.cells);
     },
     didGameEnd() {
       return this.didShapeWin('x') || this.didShapeWin('o') || this.isDraw();
@@ -176,7 +171,7 @@ export default {
     },
     result(state, action) { //action is of form {row, col, value}
       const res = copyBoard(state);
-      res[action.row][action.col] = action.value;
+      res[action.row][action.col] = action.value === 'x' ? this.x : this.circle;
 
       return res;
     },
