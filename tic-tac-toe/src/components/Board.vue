@@ -1,9 +1,7 @@
 <template>
   <div class="board container">
     <div v-for="(row, index) in cells" :key="index" class="row justify-content-center">
-      <i v-for="(cell, colIndex) in row" :key="colIndex" class="fa-solid square">
-        {{cell}}
-      </i>
+      <i v-for="(cell, colIndex) in row" :key="colIndex" class="square" :class="cell"/>
     </div>    
   </div>
 </template>
@@ -24,10 +22,12 @@ export default {
   data() {
     return {
       cells: [],
+      circle: "fa-regular fa-circle",
+      x: "fa-solid fa-x",
     }
   },
   created() {
-    this.cells = Array.from({length: this.rows}).map(() => Array.from({length: this.columns}, () => 'x'));
+    this.cells = Array.from({length: this.rows}).map(() => Array.from({length: this.columns}, () => '')); 
     console.log(this.cells);
   }
 }
