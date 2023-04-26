@@ -12,6 +12,7 @@
 
 <script>
 import swal from 'sweetalert2';
+const copyBoard = board => [...board.map(row => [...row])];
 
 export default {
   name: 'GameBoard',
@@ -84,21 +85,16 @@ export default {
         this.draw();
       }
     },
+    isBoardAtDraw(board) {
+      return board.every(row => row.every(cell => cell !== ''));
+    },
     isDraw() {
-      return this.cells.every(row => row.every(cell => cell !== ''));
+      return this.isBoardAtDraw(this.cells);
     },
     aiPlay() {
       this.clickCell(0, 0);//TODO: change it to use minimax
     },
-    didShapeWin(shape) {
-      const board = this.cells.map(row => row.map(cell => {
-        if(cell === this.x) {
-          return 'x'
-        }
-
-        return cell === this.circle ? 'o' : '';
-      }));
-
+    didShapeBeatBoard(shape, board) {
       for (let rowIndex = 0; rowIndex < this.rows; rowIndex++) {
         let count = 0;
         for (let columnIndex = 0; columnIndex < this.columns; columnIndex++) {
@@ -145,9 +141,44 @@ export default {
 
       return false;
     },
+    didShapeWin(shape) {
+      const board = this.cells.map(row => row.map(cell => {
+        if(cell === this.x) {
+          return 'x'
+        }
+
+        return cell === this.circle ? 'o' : '';
+      }));
+
+      return this.didShapeBeatBoard(shape, board);
+    },
     didGameEnd() {
       return this.didShapeWin('x') || this.didShapeWin('o') || this.isDraw();
     },
+    isTerminal(state) {
+      return this.didShapeBeatBoard('x', state) || this.didShapeBeatBoard('o', state) || this.isBoardAtDraw(state); 
+    },
+    valueTerminalState(state) {
+      if(this.didShapeBeatBoard('x', state)) {
+        return 1;
+      } else if(this.didShapeBeatBoard('o', state)) {
+        return -1;
+      } else if(this.isBoardAtDraw(state)) {
+        return 0;
+      }
+
+      this.error("Tried to evaluate a non-terminal state");
+    },
+    result(state, action) { //action is of form {row, col, value}
+      const res = copyBoard(state);
+      res[action.row][action.col] = action.value;
+
+      return res;
+    },
+    possibleActions(board, shape) {
+      return board.flatMap((row, rowIndex) => row.map((_, colIndex) => 
+                  ({row: rowIndex, col: colIndex, value: shape})).filter(({col}) => !row[col]));
+    }
   },
   computed: {
     toggleText() {
