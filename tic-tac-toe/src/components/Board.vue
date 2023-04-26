@@ -1,5 +1,6 @@
 <template>
   <div class="board container">
+    <div class="pb-3"> <button class="btn btn-primary" @click="initiateBoard">RESET</button> </div>
     <div v-for="(row, index) in cells" :key="index" class="row justify-content-center">
       <i v-for="(cell, colIndex) in row" :key="colIndex" class="square" :class="cell" @click="clickCell(index, colIndex)" />
     </div>    
@@ -30,9 +31,13 @@ export default {
     }
   },
   created() {
-    this.cells = Array.from({length: this.rows}).map(() => Array.from({length: this.columns}, () => '')); 
+    this.initiateBoard();
   },
   methods: {
+    initiateBoard() {
+      this.cells = Array.from({length: this.rows}).map(() => Array.from({length: this.columns}, () => '')); 
+      this.isXTurn = true;
+    },
     error(text, title="Error!") {
       swal.fire({icon: "error", title, text})
     },
