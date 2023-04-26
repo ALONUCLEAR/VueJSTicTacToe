@@ -23,7 +23,7 @@ export default {
     Toggle
   },
   created() {
-    this.isDarkMode = Boolean(localStorage.getItem('dark')) || false;
+    this.isDarkMode = localStorage.getItem('dark') === "true";
   },
   methods: {
     toggleDarkMode() {
