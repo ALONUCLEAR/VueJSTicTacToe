@@ -42,7 +42,7 @@ export default {
   },
   created() {
     this.initiateBoard();
-    this.isAI = Boolean(localStorage.getItem('isAI')) || false;
+    this.isAI = localStorage.getItem('isAI') === "true";
   },
   methods: {
     swapAI() {
