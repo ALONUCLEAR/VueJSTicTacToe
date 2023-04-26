@@ -7,7 +7,7 @@ It is a solved game, with a forced draw assuming best play from both players.</q
     <br />
     <h1> Why Am I Doing This? </h1>
     <h5>I set out to write versions of tic tac toe in every language I know,</h5>
-    <h5>just as a fun expiriment.</h5>
+    <h5>just as a fun experiment.</h5>
     <h5>This is my attempt at doing it with VueJS.</h5>
     <h1>To learn more about me and see more of my projects:</h1>
     <h5><a href="https://alonuclear.itch.io/" target="_blank">My itch.io page</a></h5>
