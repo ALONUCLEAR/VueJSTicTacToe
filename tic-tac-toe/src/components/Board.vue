@@ -3,7 +3,7 @@
     <div class="pb-3 row d-flex align-items-center justify-content-center"> 
       <button class="btn btn-primary mr-5" @click="initiateBoard">RESET</button>
       <span class="px-5" />
-      <toggle :text="toggleText" @swap="swapAI" />
+      <toggle :text="toggleText" @swap="swapAI" :checked="isAI" />
     </div>
     <div v-for="(row, index) in cells" :key="index" class="row justify-content-center">
       <i v-for="(cell, colIndex) in row" :key="colIndex" class="square" :class="cell" @click="clickCell(index, colIndex)" />
@@ -42,10 +42,12 @@ export default {
   },
   created() {
     this.initiateBoard();
+    this.isAI = Boolean(localStorage.getItem('isAI')) || false;
   },
   methods: {
     swapAI() {
       this.isAI = !this.isAI;
+      localStorage.setItem('isAI', this.isAI);
 
       if(this.isAI && !this.isXTurn) {
         this.aiPlay();

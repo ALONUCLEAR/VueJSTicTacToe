@@ -3,7 +3,7 @@
     <nav>
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link> |
-      <toggle :text="isDarkMode ? 'Dark mode' : 'Light mode'" @swap="toggleDarkMode" class="justify-content-start"/>
+      <toggle :text="isDarkMode ? 'Dark mode' : 'Light mode'" @swap="toggleDarkMode" :checked="isDarkMode" class="justify-content-start"/>
     </nav>
     <router-view/>
   </div>
