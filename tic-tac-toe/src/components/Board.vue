@@ -1,6 +1,9 @@
 <template>
   <div class="board container">
-    <div class="pb-3"> <button class="btn btn-primary" @click="initiateBoard">RESET</button> </div>
+    <div class="pb-3 row justify-content-center"> 
+      <button class="btn btn-primary" @click="initiateBoard">RESET</button> 
+      <button class="btn btn-secondary" @click="swapAI"> {{toggleText}} </button>
+    </div>
     <div v-for="(row, index) in cells" :key="index" class="row justify-content-center">
       <i v-for="(cell, colIndex) in row" :key="colIndex" class="square" :class="cell" @click="clickCell(index, colIndex)" />
     </div>    
@@ -28,12 +31,20 @@ export default {
       circle: "fa-regular fa-circle",
       x: "fa-solid fa-x",
       isXTurn: true,
+      isAI: false,
     }
   },
   created() {
     this.initiateBoard();
   },
   methods: {
+    swapAI() {
+      this.isAI = !this.isAI;
+
+      if(this.isAI && !this.isXTurn) {
+        this.aiPlay();
+      }
+    },
     initiateBoard() {
       this.cells = Array.from({length: this.rows}).map(() => Array.from({length: this.columns}, () => '')); 
       this.isXTurn = true;
@@ -58,6 +69,10 @@ export default {
         this.isXTurn = !this.isXTurn;
         this.$forceUpdate();
         this.announceEnd();
+
+        if(this.isAI && !this.isXTurn) {
+          this.aiPlay();
+        }
       }
     },
     announceEnd() {
@@ -71,6 +86,9 @@ export default {
     },
     isDraw() {
       return this.cells.every(row => row.every(cell => cell !== ''));
+    },
+    aiPlay() {
+      this.clickCell(0, 0);//TODO: change it to use minimax
     },
     didShapeWin(shape) {
       const board = this.cells.map(row => row.map(cell => {
@@ -107,7 +125,7 @@ export default {
 
       let count = 0;
       for (let rowIndex = 0; rowIndex < this.rows; rowIndex++) {
-        if (board[rowIndex][rowIndex] === shape) {
+        if (board[rowIndex][rowIndex] === shape) {  
           count++;
         }
       }
@@ -131,6 +149,11 @@ export default {
       return this.didShapeWin('x') || this.didShapeWin('o') || this.isDraw();
     },
   },
+  computed: {
+    toggleText() {
+      return this.isAI ? "deactivate AI" : "activate AI mode";
+    }
+  }
 }
 </script>
 
