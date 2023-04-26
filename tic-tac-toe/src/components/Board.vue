@@ -1,8 +1,9 @@
 <template>
   <div class="board container">
-    <div class="pb-3 row justify-content-center"> 
-      <button class="btn btn-primary" @click="initiateBoard">RESET</button> 
-      <button class="btn btn-secondary" @click="swapAI"> {{toggleText}} </button>
+    <div class="pb-3 row d-flex align-items-center justify-content-center"> 
+      <button class="btn btn-primary" @click="initiateBoard">RESET</button>
+      <span class="pl-3 pr-5" />
+      <toggle :text="toggleText" @swap="swapAI" />
     </div>
     <div v-for="(row, index) in cells" :key="index" class="row justify-content-center">
       <i v-for="(cell, colIndex) in row" :key="colIndex" class="square" :class="cell" @click="clickCell(index, colIndex)" />
@@ -12,6 +13,7 @@
 
 <script>
 import swal from 'sweetalert2';
+import Toggle from './Toggle.vue';
 const copyBoard = board => [...board.map(row => [...row])];
 
 export default {
@@ -25,6 +27,9 @@ export default {
       type: Number,
       default: 3,
     }
+  },
+  components: {
+    Toggle
   },
   data() {
     return {
@@ -193,7 +198,7 @@ export default {
   },
   computed: {
     toggleText() {
-      return this.isAI ? "deactivate AI" : "activate AI mode";
+      return this.isAI ? "AI on" : "AI off";
     }
   }
 }
