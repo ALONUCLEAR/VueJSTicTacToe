@@ -71,7 +71,7 @@ export default {
         this.$forceUpdate();
         this.announceEnd();
 
-        if(this.isAI && !this.isXTurn) {
+        if(!this.didGameEnd() && this.isAI && !this.isXTurn) {
           this.aiPlay();
         }
       }
@@ -92,7 +92,12 @@ export default {
       return this.isBoardAtDraw(this.cells);
     },
     aiPlay() {
-      this.clickCell(0, 0);//TODO: change it to use minimax
+      const options = this.possibleActions(this.cells, 'o').map(({row, col}) => ({row, col, value: this.minimax(this.cells, false)}));
+
+      if(options.length > 0) {
+        const {row, col} = options.find(option => option.value === Math.max(...options.map(({value}) => value)));
+        this.clickCell(row, col);
+      }
     },
     didShapeBeatBoard(shape, board) {
       for (let rowIndex = 0; rowIndex < this.rows; rowIndex++) {
@@ -178,6 +183,17 @@ export default {
     possibleActions(board, shape) {
       return board.flatMap((row, rowIndex) => row.map((_, colIndex) => 
                   ({row: rowIndex, col: colIndex, value: shape})).filter(({col}) => !row[col]));
+    },
+    minimax(board, isXTurn) {
+      if(this.isTerminal(board)) {
+        return this.valueTerminalState(board);
+      }
+
+      if(isXTurn) {
+        return Math.max(...this.possibleActions(board, 'x').map(action => this.minimax(this.result(board, action), false)));
+      }
+      
+      return Math.min(...this.possibleActions(board, 'o').map(action => this.minimax(this.result(board, action), true)));
     }
   },
   computed: {
